@@ -4,7 +4,7 @@ from django.utils.functional import cached_property
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 
 from django.views.generic.base import View
@@ -77,6 +77,7 @@ class SlackinInviteView(SlackinMixin, View):
     def get_generic_context(self):
         return {
             'slackin': self.slackin_context(),
+            'login_required': settings.SLACKIN_LOGIN_REQUIRED,
         }
 
     def get_redirect_url(self):
@@ -85,10 +86,8 @@ class SlackinInviteView(SlackinMixin, View):
         else:
             return reverse(settings.SLACKIN_LOGIN_REDIRECT)
 
-    def response(self):
-        return render_to_response(template_name=self.template_name,
-                                  context=self.context,
-                                  context_instance=RequestContext(self.request))
+    def response(self, request):
+        return render(request, template_name=self.template_name, context=self.context)
 
     def get(self, request):
         if settings.SLACKIN_LOGIN_REQUIRED and not self.request.user.is_authenticated():
@@ -102,7 +101,7 @@ class SlackinInviteView(SlackinMixin, View):
         self.context['slackin_invite_form'] = SlackinInviteForm(
             initial={'email_address': email_address},
             user=self.request.user)
-        return self.response()
+        return self.response(request)
 
     def post(self, request):
         if settings.SLACKIN_LOGIN_REQUIRED and not self.request.user.is_authenticated():
@@ -113,5 +112,4 @@ class SlackinInviteView(SlackinMixin, View):
         if invite_form.is_valid():
             self.context['slackin_invite_form_success'] = True
         self.context['slackin_invite_form'] = invite_form
-        return self.response()
-
+        return self.response(request)
