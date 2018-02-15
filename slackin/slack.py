@@ -1,11 +1,15 @@
-import requests
+import logging
 import json
+
+import requests
 
 from slackin.signals import (
     email_address_already_invited,
     email_address_already_in_team,
     sent_invite_to_email_address
 )
+
+log = logging.getLogger(__name__)
 
 
 class SlackError(Exception):
@@ -28,6 +32,7 @@ class Slack(object):
         response = requests.post(url, data=data)
 
         if response.status_code != 200:
+            log.error("Slack API call failed (%s) Headers:\n%s", response.status_code, response.headers)
             raise SlackError('API request failed (status: %s)' % response.status_code)
 
         response_dict = response.json()
