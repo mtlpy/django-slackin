@@ -12,6 +12,7 @@ class SlackError(Exception):
     def __init__(self, message):
         super(SlackError, self).__init__(message)
 
+
 class Slack(object):
     def __init__(self, token, subdomain):
         self.token = token
@@ -32,7 +33,7 @@ class Slack(object):
                 self.handle_error(error_code=response_dict['error'], data=data, user=user)
             return response_dict
         else:
-            raise SlackError('Slack: Invalid API request')
+            raise SlackError('API request failed (status: %s)' % response.status_code)
 
     def handle_error(self, error_code, data, user):
         # generic errors
