@@ -57,7 +57,7 @@ def get_slack_info():
 
 
 def get_cached_slack_info():
-    return cache.get_or_set('SLACK_CACHE', get_slack_info)
+    return cache.get_or_set('SLACK_CACHE', get_slack_info)  # Default timeout: 5 min
 
 
 class SlackinInviteView(View):
