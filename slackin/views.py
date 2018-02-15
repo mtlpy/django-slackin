@@ -75,30 +75,26 @@ class SlackinInviteView(View):
         else:
             return reverse(settings.SLACKIN_LOGIN_REDIRECT)
 
-    def response(self, request):
-        return render(request, template_name=self.template_name, context=self.context)
-
     def get(self, request):
         if settings.SLACKIN_LOGIN_REQUIRED and not self.request.user.is_authenticated():
             return HttpResponseRedirect(self.get_redirect_url())
 
-        self.context = self.get_generic_context()
-
+        context = self.get_generic_context()
         email_address = ''
         if self.request.user.is_authenticated():
             email_address = self.request.user.email
-        self.context['slackin_invite_form'] = SlackinInviteForm(
+        context['slackin_invite_form'] = SlackinInviteForm(
             initial={'email_address': email_address},
             user=self.request.user)
-        return self.response(request)
+        return render(request, template_name=self.template_name, context=context)
 
     def post(self, request):
         if settings.SLACKIN_LOGIN_REQUIRED and not self.request.user.is_authenticated():
             return HttpResponseRedirect(self.get_redirect_url())
 
-        self.context = self.get_generic_context()
+        context = self.get_generic_context()
         invite_form = SlackinInviteForm(self.request.POST, user=self.request.user)
         if invite_form.is_valid():
-            self.context['slackin_invite_form_success'] = True
-        self.context['slackin_invite_form'] = invite_form
-        return self.response(request)
+            context['slackin_invite_form_success'] = True
+        context['slackin_invite_form'] = invite_form
+        return render(request, template_name=self.template_name, context=context)
