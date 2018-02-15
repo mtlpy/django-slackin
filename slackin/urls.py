@@ -1,8 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from slackin.views import SlackinInviteView
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', SlackinInviteView.as_view(), name='slackin_invite'),
-)
+]
