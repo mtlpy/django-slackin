@@ -3,6 +3,7 @@ import time
 from django.utils.functional import cached_property
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 
 from django.shortcuts import render
 from django.template import RequestContext
@@ -14,32 +15,17 @@ from slackin.slack import Slack
 from slackin.forms import SlackinInviteForm
 
 
-_team_context = None
-_team_context_timeout = 60 * 60 # 1 hour
-_users_context = None
-_users_context_timeout = 60 * 5 # 5 minutes
+class SlackClient(object):
+    def __init__(self, token, subdomain):
+        self._api = Slack(token=token, subdomain=subdomain)
 
-class SlackinMixin(object):
-
-    def _context_expired(self, context, timeout):
-        return not context or (time.time() - context['last_fetched']) > timeout
-
-    def _create_context(self, data):
+    def get_team(self):
+        response = self._api.get_team()
+        data = response['team']
+        data['image'] = response['team']['icon']['image_132']
         return {
-            'data': data,
-            'last_fetched': time.time(),
+            'team': data
         }
-
-    def _get_team_context(self, slack_instance):
-        global _team_context, _team_context_timeout
-        if self._context_expired(_team_context, _team_context_timeout):
-            slack_team_response = slack_instance.get_team()
-            team_context = slack_team_response['team']
-            team_context['image'] = slack_team_response['team']['icon']['image_132']
-            _team_context = self._create_context({
-                'team': team_context
-            })
-        return _team_context['data']
 
     def _clean_users(self, users):
         cleaned_users = []
@@ -50,33 +36,36 @@ class SlackinMixin(object):
                 cleaned_users.append(user)
         return cleaned_users
 
-    def _get_users_context(self, slack_instance):
-        global _users_context, _users_context_timeout
-        if self._context_expired(_users_context, _users_context_timeout):
-            slack_user_response = slack_instance.get_users()
-            users_total = self._clean_users(slack_user_response['members'])
-            users_online = [user for user in users_total
-                            if 'presence' in user and user['presence'] == 'active']
-            _users_context = self._create_context({
-                'users': users_total,
-                'users_online': len(users_online),
-                'users_total': len(users_total),
-            })
-        return _users_context['data']
+    def get_users(self):
+        response = self._api.get_users()
+        users_total = self._clean_users(response['members'])
+        users_online = [
+            user
+            for user in users_total
+            if 'presence' in user and user['presence'] == 'active'
+        ]
+        return {
+            'users': users_total,
+            'users_online': len(users_online),
+            'users_total': len(users_total),
+        }
 
-    def slackin_context(self):
-        slack = Slack(token=settings.SLACKIN_TOKEN, subdomain=settings.SLACKIN_SUBDOMAIN)
-        context = {}
-        context.update(self._get_team_context(slack))
-        context.update(self._get_users_context(slack))
-        return context
 
-class SlackinInviteView(SlackinMixin, View):
+def get_slack_info():
+    client = SlackClient(settings.SLACKIN_TOKEN, settings.SLACKIN_SUBDOMAIN)
+    return {**client.get_team(), **client.get_users()}
+
+
+def get_cached_slack_info():
+    return cache.get_or_set('SLACK_CACHE', get_slack_info)
+
+
+class SlackinInviteView(View):
     template_name = 'slackin/invite/page.html'
 
     def get_generic_context(self):
         return {
-            'slackin': self.slackin_context(),
+            'slackin': get_cached_slack_info(),
             'login_required': settings.SLACKIN_LOGIN_REQUIRED,
         }
 
