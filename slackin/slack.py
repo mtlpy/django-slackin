@@ -9,8 +9,7 @@ from slackin.signals import (
 
 
 class SlackError(Exception):
-    def __init__(self, message):
-        super(SlackError, self).__init__(message)
+    pass
 
 
 class Slack(object):
@@ -27,15 +26,16 @@ class Slack(object):
             user = data['user']
             del data['user']
         response = requests.post(url, data=data)
-        if response.status_code == 200:
-            response_dict = response.json()
-            if 'error' in response_dict:
-                self.handle_error(error_code=response_dict['error'], data=data, user=user)
-            return response_dict
-        else:
+
+        if response.status_code != 200:
             raise SlackError('API request failed (status: %s)' % response.status_code)
 
-    def handle_error(self, error_code, data, user):
+        response_dict = response.json()
+        if 'error' in response_dict:
+            self.raise_error(error_code=response_dict['error'], data=data, user=user)
+        return response_dict
+
+    def raise_error(self, error_code, data, user):
         # generic errors
         if error_code == 'not_authed':
             raise SlackError('Missing Slack token. Please contact an administrator.')
