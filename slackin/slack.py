@@ -28,10 +28,6 @@ class Slack(object):
         data = data or {}
         url = 'https://{}.slack.com/api/{}'.format(self.subdomain, api)
         data['token'] = self.token
-        user = None
-        if 'user' in data:
-            user = data['user']
-            del data['user']
         response = requests.post(url, data=data)
 
         if response.status_code != 200:
@@ -41,10 +37,10 @@ class Slack(object):
 
         response_dict = response.json()
         if 'error' in response_dict:
-            self.raise_error(error_code=response_dict['error'], data=data, user=user)
+            self.raise_error(error_code=response_dict['error'], data=data)
         return response_dict
 
-    def raise_error(self, error_code, data, user):
+    def raise_error(self, error_code, data):
         # generic errors
         if error_code == 'not_authed':
             raise SlackError('Missing Slack token. Please contact an administrator.')
@@ -59,18 +55,14 @@ class Slack(object):
         elif error_code == 'already_invited':
             if 'email' in data:
                 email_address = data['email']
-                email_address_already_invited.send(sender=self.__class__,
-                                                   email_address=email_address,
-                                                   user=user)
+                email_address_already_invited.send(sender=self.__class__, email_address=email_address)
                 raise SlackError('{} has already been invited.'.format(email_address))
             else:
                 raise SlackError('That email address has already been invited.')
         elif error_code == 'already_in_team':
             if 'email' in data:
                 email_address = data['email']
-                email_address_already_in_team.send(sender=self.__class__,
-                                                   email_address=email_address,
-                                                   user=user)
+                email_address_already_in_team.send(sender=self.__class__, email_address=email_address)
                 raise SlackError('{} is already in this team.'.format(email_address))
             else:
                 raise SlackError('That email address is already in this team.')
@@ -89,16 +81,8 @@ class Slack(object):
     def get_users(self):
         return self.api_request('users.list', data={'presence': 1})
 
-    def invite_user(self, email_address, user, ultra_restricted=False):
-        response = self.api_request('users.admin.invite', data={
-            'email': email_address,
-            'set_active': True,
-            'ultra_restricted': int(ultra_restricted),
-            'user': user,
-        })
-
-        sent_invite_to_email_address.send(sender=self.__class__,
-                                          email_address=email_address,
-                                          user=user)
-
+    def invite_user(self, email_address):
+        data = {'email': email_address}
+        response = self.api_request('users.admin.invite', data=data)
+        sent_invite_to_email_address.send(sender=self.__class__, email_address=email_address)
         return response
