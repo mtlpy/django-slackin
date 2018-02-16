@@ -15,6 +15,9 @@ log = logging.getLogger(__name__)
 class SlackError(Exception):
     pass
 
+class SlackThrottledCall(SlackError):
+    pass
+
 
 class Slack(object):
     def __init__(self, token, subdomain):
@@ -33,7 +36,8 @@ class Slack(object):
 
         if response.status_code != 200:
             log.error("Slack API call failed (%s) Headers:\n%s", response.status_code, response.headers)
-            raise SlackError('API request failed (status: %s)' % response.status_code)
+            exc_class = SlackThrottledCall if response.status_code == 429 else SlackError
+            raise exc_class('API request failed (status: %s)' % response.status_code)
 
         response_dict = response.json()
         if 'error' in response_dict:

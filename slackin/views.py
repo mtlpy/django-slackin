@@ -1,63 +1,61 @@
-import time
-
-from django.utils.functional import cached_property
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
-
 from django.shortcuts import render
-from django.template import RequestContext
-
 from django.views.generic.base import View
 
 from slackin.conf import settings
-from slackin.slack import Slack
+from slackin.slack import Slack, SlackThrottledCall
 from slackin.forms import SlackinInviteForm
 
 
-class SlackClient(object):
-    def __init__(self, token, subdomain):
-        self._api = Slack(token=token, subdomain=subdomain)
-
-    def get_team(self):
-        response = self._api.get_team()
-        data = response['team']
-        data['image'] = response['team']['icon']['image_132']
-        return {
-            'team': data
-        }
-
-    def _clean_users(self, users):
-        cleaned_users = []
-        for user in users:
-            if (user.get('id') != 'USLACKBOT'
-                    and not user.get('is_bot', False)
-                    and not user.get('deleted', False)):
-                cleaned_users.append(user)
-        return cleaned_users
-
-    def get_users(self):
-        response = self._api.get_users()
-        users_total = self._clean_users(response['members'])
-        users_online = [
-            user
-            for user in users_total
-            if 'presence' in user and user['presence'] == 'active'
-        ]
-        return {
-            'users': users_total,
-            'users_online': len(users_online),
-            'users_total': len(users_total),
-        }
+def is_real_slack_user(member):
+    return not (member.get('id') == 'USLACKBOT' or member.get('is_bot') or member.get('deleted'))
 
 
-def get_slack_info():
-    client = SlackClient(settings.SLACKIN_TOKEN, settings.SLACKIN_SUBDOMAIN)
-    return {**client.get_team(), **client.get_users()}
+class SlackContext(object):
+    CACHE_KEY = 'SLACK_CACHE'
+    CACHE_PERIOD = 60
+    THROTTLED_CACHE_PERIOD = 5
 
+    def __init__(self):
+        self._api = Slack(settings.SLACKIN_TOKEN, settings.SLACKIN_SUBDOMAIN)
 
-def get_cached_slack_info():
-    return cache.get_or_set('SLACK_CACHE', get_slack_info)  # Default timeout: 5 min
+    def fetch(self):
+        data = cache.get(self.CACHE_KEY)
+        if data is None:
+            throttled, data = self._fetch()
+            timeout = self.THROTTLED_CACHE_PERIOD if throttled else self.CACHE_PERIOD
+            cache.set(self.CACHE_KEY, data, timeout=timeout)
+        return data
+
+    def _fetch(self):
+        context = {}
+        throttled = False
+
+        try:
+            response = self._api.get_team()
+        except SlackThrottledCall:
+            context['team_name'] = settings.SLACKIN_SUBDOMAIN
+            context['team_image'] = ''
+            throttled = True
+        else:
+            context['team_name'] = response['team']['name']
+            context['team_image'] = response['team']['icon']['image_132']
+
+        try:
+            response = self._api.get_users()
+        except SlackThrottledCall:
+            context['users_online'] = -1
+            context['users_total'] = -1
+            throttled = True
+        else:
+            users = [member for member in response['members'] if is_real_slack_user(member)]
+            users_online = [user for user in users if user.get('presence') == 'active']
+            context['users_online'] = len(users_online)
+            context['users_total'] = len(users)
+
+        return throttled, context
 
 
 class SlackinInviteView(View):
@@ -65,7 +63,7 @@ class SlackinInviteView(View):
 
     def get_generic_context(self):
         return {
-            'slackin': get_cached_slack_info(),
+            'slackin': SlackContext().fetch(),
             'login_required': settings.SLACKIN_LOGIN_REQUIRED,
         }
 
