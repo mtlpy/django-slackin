@@ -1,0 +1,7 @@
+up:
+  - python: 3.6.4
+  - pipfile
+
+commands:
+  lint:
+    run: flake8 slackin
