@@ -32,14 +32,6 @@ Update your settings.py
 ```python
 SLACKIN_TOKEN = 'YOUR-SLACK-TOKEN' # create a token at https://api.slack.com/web
 SLACKIN_SUBDOMAIN = 'your-team'    # if https://your-team.slack.com
-
-# optional settings
-SLACKIN_LOGIN_REQUIRED = True # Redirect if user is not logged in. If False, the invite form will
-                              #   still be hidden for logged-out users.
-SLACKIN_LOGIN_REDIRECT = '/'  # Redirect URL for logged-out users; can be a URL or
-                              #   URLconf name (i.e. 'my_login_page')
-SLACKIN_ULTRA_RESTRICTED_INVITES = True # only available for paid accounts
-SLACKIN_SHOW_EMAIL_FORM = True          # show/hide email form
 ```
 
 Visit [http://localhost:8000/slackin/](http://localhost:8000/slackin/) to send an invite to your Slack team.
@@ -58,8 +50,8 @@ To listen for a signal:
 from slackin.signals import sent_invite_to_email_address
 
 @receiver(sent_invite_to_email_address)
-def my_invite_handler(sender, email_address, user **kwargs):
-    print 'SIGNAL RECEIVED: {}, {}'.format(email_address, user)
+def my_invite_handler(sender, email_address):
+    print 'SIGNAL RECEIVED: {}'.format(email_address)
 ```
 
 ## Custom templates
@@ -69,8 +61,8 @@ To use custom templates, add the either of following files to your app's templat
 - `slackin/invite/content.html`: the text and form
 
 Templates have access to the following slackin-specific context variables:
-- `slackin.team`: slack team info such as name, icons, etc
-- `slackin.users`: full list of team members
+- `slackin.team_name`: slack team name
+- `slackin.team_image`: slack team image
 - `slackin.users_online`: number of team members currently online
 - `slackin.users_total`: total number of team members
 - `slackin_invite_form`: invite form object
