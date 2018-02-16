@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-from slackin.signals import (
+from django_slackin_public.signals import (
     email_address_already_invited,
     email_address_already_in_team,
     sent_invite_to_email_address

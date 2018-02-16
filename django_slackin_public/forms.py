@@ -1,7 +1,7 @@
 from django import forms
 
-from slackin.conf import settings
-from slackin.slack import Slack, SlackError
+from django_slackin_public.conf import settings
+from django_slackin_public.slack import Slack, SlackError
 
 
 class SlackinInviteForm(forms.Form):

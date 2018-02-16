@@ -2,9 +2,9 @@ from django.core.cache import cache
 from django.shortcuts import render
 from django.views.generic.base import View
 
-from slackin.conf import settings
-from slackin.slack import Slack, SlackThrottledCall
-from slackin.forms import SlackinInviteForm
+from django_slackin_public.conf import settings
+from django_slackin_public.slack import Slack, SlackThrottledCall
+from django_slackin_public.forms import SlackinInviteForm
 
 
 def is_real_slack_user(member):
