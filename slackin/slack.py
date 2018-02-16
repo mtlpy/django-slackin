@@ -1,5 +1,4 @@
 import logging
-import json
 
 import requests
 
@@ -14,6 +13,7 @@ log = logging.getLogger(__name__)
 
 class SlackError(Exception):
     pass
+
 
 class SlackThrottledCall(SlackError):
     pass
