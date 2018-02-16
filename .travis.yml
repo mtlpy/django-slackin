@@ -1,0 +1,27 @@
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+language: python
+
+python:
+  - '2.7'
+  - '3.6'
+
+env:
+- DJANGO_VER=1.8.0
+# - DJANGO_VER=1.11.0
+- DJANGO_VER=2.0.0
+
+install:
+  - pip install pipenv
+  - pipenv install --system --dev
+
+script:
+  - pip install "Django~=${DJANGO_VER}"
+  - python setup.py sdist && pip install dist/*.tar.gz
+  - python setup.py check -r -s  # Check the setuptools readme
+  - flake8
+  -

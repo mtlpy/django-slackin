@@ -1,5 +1,5 @@
-import os
 from setuptools import setup
+
 
 README = """
 =====================
@@ -19,6 +19,7 @@ Django SlackIn Public
 
 `More information on Github <https://github.com/mtlpy/django-slackin-public/blob/master/README.md>`_.
 """
+
 
 setup(
     name='django-slackin-public',

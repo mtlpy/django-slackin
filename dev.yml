@@ -4,4 +4,4 @@ up:
 
 commands:
   lint:
-    run: flake8 slackin
+    run: flake8

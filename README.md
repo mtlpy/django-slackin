@@ -78,6 +78,19 @@ Templates have access to the following slackin-specific context variables:
 
 # Development
 
+## Using [Dad](https://github.com/pior/dad)
+
+```shell
+$ dad clone mtlpy/django-slackin-public
+...
+
+$ dad up
+...
+
+$ dad lint
+...
+```
+
 ## Release
 
 ```shell
