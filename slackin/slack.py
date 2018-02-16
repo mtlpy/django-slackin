@@ -1,5 +1,7 @@
-import requests
+import logging
 import json
+
+import requests
 
 from slackin.signals import (
     email_address_already_invited,
@@ -7,10 +9,15 @@ from slackin.signals import (
     sent_invite_to_email_address
 )
 
+log = logging.getLogger(__name__)
+
 
 class SlackError(Exception):
-    def __init__(self, message):
-        super(SlackError, self).__init__(message)
+    pass
+
+class SlackThrottledCall(SlackError):
+    pass
+
 
 class Slack(object):
     def __init__(self, token, subdomain):
@@ -26,15 +33,18 @@ class Slack(object):
             user = data['user']
             del data['user']
         response = requests.post(url, data=data)
-        if response.status_code == 200:
-            response_dict = response.json()
-            if 'error' in response_dict:
-                self.handle_error(error_code=response_dict['error'], data=data, user=user)
-            return response_dict
-        else:
-            raise SlackError('Slack: Invalid API request')
 
-    def handle_error(self, error_code, data, user):
+        if response.status_code != 200:
+            log.error("Slack API call failed (%s) Headers:\n%s", response.status_code, response.headers)
+            exc_class = SlackThrottledCall if response.status_code == 429 else SlackError
+            raise exc_class('API request failed (status: %s)' % response.status_code)
+
+        response_dict = response.json()
+        if 'error' in response_dict:
+            self.raise_error(error_code=response_dict['error'], data=data, user=user)
+        return response_dict
+
+    def raise_error(self, error_code, data, user):
         # generic errors
         if error_code == 'not_authed':
             raise SlackError('Missing Slack token. Please contact an administrator.')
