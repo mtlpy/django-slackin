@@ -1,22 +1,36 @@
 import os
 from setuptools import setup
 
-with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
-    README = readme.read()
+README = """
+=====================
+Django SlackIn Public
+=====================
 
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+**Slack invitation page for Django (like rauchg/slackin)**
+
+* PyPI: https://pypi.python.org/pypi/django-slackin-public
+* Code: https://github.com/mtlpy/django-slackin-public
+* |travis-ci|
+
+.. |travis-ci| image::
+   https://travis-ci.org/mtlpy/django-slackin-public.svg?branch=master
+   :target: https://travis-ci.org/mtlpy/django-slackin-public
+   :alt: Tests on Travis-CI
+
+`More information on Github <https://github.com/mtlpy/django-slackin-public/blob/master/README.md>`_.
+"""
 
 setup(
-    name='django-slackin',
-    version='0.0.2',
-    packages=['slackin'],
+    name='django-slackin-public',
+    version='0.0.1',
+    packages=['django_slackin_public'],
     include_package_data=True,
     license='MIT License',
-    description='Django integration with a public slack organization (inspired by https://github.com/rauchg/slackin)',
+    description='Slack invitation page for Django (like rauchg/slackin)',
     long_description=README,
-    url='https://github.com/brilliantorg/django-slackin',
-    author='Caleb Rash',
-    author_email='caleb@brilliant.org',
+    url='https://github.com/mtlpy/django-slackin-public',
+    author='Pior Bastida',
+    author_email='pior@pbastida.net',
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
@@ -25,6 +39,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],

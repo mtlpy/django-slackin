@@ -1,15 +1,19 @@
-# django-slackin
+# django-slackin-public
 
-Django integration with a public slack organization (inspired by https://github.com/rauchg/slackin).
+[![Version](https://img.shields.io/pypi/v/django-slackin-public.svg)](https://pypi.python.org/pypi/django-slackin-public)
+[![License](https://img.shields.io/pypi/l/django-slackin-public.svg)](https://pypi.python.org/pypi/django-slackin-public)
+[![PythonVersions](https://img.shields.io/pypi/pyversions/django-slackin-public.svg)](https://pypi.python.org/pypi/django-slackin-public)
+[![Build](https://travis-ci.org/mtlpy/django-slackin-public.svg?branch=multi-python-ci-travis)](https://travis-ci.org/mtlpy/django-slackin-public)
+
+Slack invitation page for Django (like https://github.com/rauchg/slackin)
 
 
 ## Installation & setup
 
-Install django-slackin
+Install django-slackin-public
 
 ```bash
-# (coming soon)
-# pip install django-slackin
+# pip install django-slackin-public
 ```
 
 Add to your `INSTALLED_APPS`
@@ -17,14 +21,14 @@ Add to your `INSTALLED_APPS`
 ```python
 INSTALLED_APPS = (
     ...
-    'slackin',
+    'django_slackin_public',
 )
 ```
 
-Include the django-slackin URLconf in your project urls.py like this
+Include the django-slackin-public URLconf in your project urls.py like this
 
 ```python
-url(r'^slackin/', include('slackin.urls')),
+url(r'^slackin/', include('django_slackin_public.urls')),
 ```
 
 Update your settings.py
@@ -56,7 +60,11 @@ def my_invite_handler(sender, email_address):
 
 ## Custom templates
 
-To use custom templates, add the either of following files to your app's template directory depending on what you want to customize. See [templates/slackin](https://github.com/brilliantorg/django-slackin/tree/master/slackin/templates/slackin) for more details.
+To use custom templates, add the either of following files to your app's template directory
+depending on what you want to customize.
+See [templates/slackin](https://github.com/mtlpy/django-slackin-public/tree/master/django_slackin_public/templates/slackin)
+for more details.
+
 - `slackin/invite/page.html`: the surrounding `body`, `head`, and inlined styles
 - `slackin/invite/content.html`: the text and form
 
@@ -67,3 +75,14 @@ Templates have access to the following slackin-specific context variables:
 - `slackin.users_total`: total number of team members
 - `slackin_invite_form`: invite form object
 - `slackin_invite_form_success`: `True` if `slackin_invite_form.is_valid()`
+
+# Development
+
+## Release
+
+```shell
+$ python setup.py sdist bdist_wheel
+...
+
+$ twine upload dist/*
+...
