@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/pypi/v/django-slackin-public.svg)](https://pypi.python.org/pypi/django-slackin-public)
 [![License](https://img.shields.io/pypi/l/django-slackin-public.svg)](https://pypi.python.org/pypi/django-slackin-public)
 [![PythonVersions](https://img.shields.io/pypi/pyversions/django-slackin-public.svg)](https://pypi.python.org/pypi/django-slackin-public)
-[![Build](https://travis-ci.org/mtlpy/django-slackin-public.svg?branch=multi-python-ci-travis)](https://travis-ci.org/mtlpy/django-slackin-public)
+[![Build](https://travis-ci.org/mtlpy/django-slackin-public.svg?branch=master)](https://travis-ci.org/mtlpy/django-slackin-public)
 
 Slack invitation page for Django (like https://github.com/rauchg/slackin)
 
