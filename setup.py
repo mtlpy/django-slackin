@@ -2,12 +2,6 @@ from setuptools import setup
 
 
 README = """
-=====================
-Django SlackIn Public
-=====================
-
-**Slack invitation page for Django (like rauchg/slackin)**
-
 * PyPI: https://pypi.python.org/pypi/django-slackin-public
 * Code: https://github.com/mtlpy/django-slackin-public
 * |travis-ci|
