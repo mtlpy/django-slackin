@@ -24,4 +24,3 @@ script:
   - python setup.py sdist && pip install dist/*.tar.gz
   - python setup.py check -r -s  # Check the setuptools readme
   - flake8
-  -

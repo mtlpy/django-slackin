@@ -13,3 +13,4 @@ name = "pypi"
 
 "flake8" = "*"
 django = "*"
+docutils = "*"
