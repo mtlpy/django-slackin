@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 README = """
@@ -18,8 +18,7 @@ README = """
 setup(
     name='django-slackin-public',
     version='0.0.1',
-    packages=['django_slackin_public'],
-    include_package_data=True,
+    packages=find_packages(),
     license='MIT License',
     description='Slack invitation page for Django (like rauchg/slackin)',
     long_description=README,
