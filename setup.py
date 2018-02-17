@@ -19,6 +19,7 @@ setup(
     name='django-slackin-public',
     version='0.0.2',
     packages=find_packages(),
+    include_package_data=True,
     license='MIT License',
     description='Slack invitation page for Django (like rauchg/slackin)',
     long_description=README,
