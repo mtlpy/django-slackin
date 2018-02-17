@@ -7,12 +7,12 @@ cache:
 language: python
 
 python:
-  - '2.7'
+  # - '2.7'
   - '3.6'
 
 env:
 - DJANGO_VER=1.8.0
-# - DJANGO_VER=1.11.0
+- DJANGO_VER=1.11.0
 - DJANGO_VER=2.0.0
 
 install:
