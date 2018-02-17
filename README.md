@@ -93,9 +93,6 @@ $ dad lint
 
 ## Release
 
-```shell
-$ python setup.py sdist bdist_wheel
-...
-
-$ twine upload dist/*
-...
+- Change the version in `setup.py`
+- Commit with message like `Release vX.X.X`
+- Run `dad upload-release`

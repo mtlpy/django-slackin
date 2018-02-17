@@ -5,3 +5,6 @@ up:
 commands:
   lint:
     run: flake8
+
+  upload-release:
+    run: rm -rf dist && python setup.py sdist bdist_wheel && twine upload dist/*
