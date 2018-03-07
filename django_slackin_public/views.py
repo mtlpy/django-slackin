@@ -13,7 +13,7 @@ def is_real_slack_user(member):
 
 class SlackContext(object):
     CACHE_KEY = 'SLACK_CACHE'
-    CACHE_PERIOD = 60
+    CACHE_PERIOD = 3600
     THROTTLED_CACHE_PERIOD = 5
 
     def __init__(self):
