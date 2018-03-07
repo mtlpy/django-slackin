@@ -20,6 +20,7 @@ setup(
     version='0.0.3',
     packages=find_packages(),
     include_package_data=True,
+    install_requires=['requests'],
     license='MIT License',
     description='Slack invitation page for Django (like rauchg/slackin)',
     long_description=README,
