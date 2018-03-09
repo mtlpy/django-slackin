@@ -17,4 +17,4 @@ CACHES = {
 }
 
 SLACKIN_TOKEN = 'SLACKTOKEN'  # create a token at https://api.slack.com/web
-SLACKIN_SUBDOMAIN = 'yourteam'  # if https://your-team.slack.com
+SLACKIN_SUBDOMAIN = 'yourteam'
