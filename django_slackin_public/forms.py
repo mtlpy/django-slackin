@@ -18,7 +18,8 @@ class SlackinInviteForm(forms.Form):
         """
         email_address = self.cleaned_data['email_address']
 
-        slack = Slack(token=settings.SLACKIN_TOKEN, subdomain=settings.SLACKIN_SUBDOMAIN)
+        slack = Slack(settings.SLACKIN_TOKEN)
+
         try:
             slack.invite_user(email_address=email_address)
         except SlackError as err:

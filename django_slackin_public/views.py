@@ -17,7 +17,7 @@ class SlackContext(object):
     THROTTLED_CACHE_PERIOD = 5
 
     def __init__(self):
-        self._api = Slack(settings.SLACKIN_TOKEN, settings.SLACKIN_SUBDOMAIN)
+        self._api = Slack(settings.SLACKIN_TOKEN)
 
     def fetch(self):
         data = cache.get(self.CACHE_KEY)
