@@ -14,10 +14,11 @@ README = """
 `More information on Github <https://github.com/mtlpy/django-slackin-public/blob/master/README.md>`_.
 """
 
+VERSION = '0.0.3'
 
 setup(
     name='django-slackin-public',
-    version='0.0.3',
+    version=VERSION,
     packages=find_packages(),
     include_package_data=True,
     license='MIT License',
