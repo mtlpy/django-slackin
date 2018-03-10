@@ -14,7 +14,7 @@ README = """
 `More information on Github <https://github.com/mtlpy/django-slackin-public/blob/master/README.md>`_.
 """
 
-VERSION = '0.0.3'
+VERSION = '0.1.0'  # maintained by release tool
 
 setup(
     name='django-slackin-public',
