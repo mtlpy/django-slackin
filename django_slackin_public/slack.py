@@ -12,13 +12,9 @@ log = logging.getLogger(__name__)
 
 
 class SlackError(Exception):
-    pass
-
-
-class SlackThrottledCall(SlackError):
-    def __init__(self, retry_after):
+    def __init__(self, msg, retry_after=None):
         self.retry_after = retry_after
-        super().__init__()
+        super(SlackError, self).__init__(msg)
 
 
 def check_for_error(response, params):
@@ -29,39 +25,39 @@ def check_for_error(response, params):
 
     # generic errors
     if error_code == 'not_authed':
-        raise SlackError('Missing Slack token. Please contact an administrator.')
+        return SlackError('Missing Slack token. Please contact an administrator.')
     elif error_code == 'invalid_auth':
-        raise SlackError('Invalid Slack token. Please contact an administrator.')
+        return SlackError('Invalid Slack token. Please contact an administrator.')
     elif error_code == 'account_inactive':
-        raise SlackError('Slack token is inactive. Please contact an administrator.')
+        return SlackError('Slack token is inactive. Please contact an administrator.')
     elif error_code == 'ratelimited':
-        retry_after = response["headers"].get("Retry-After")
-        raise SlackThrottledCall(retry_after)
+        retry_after = response["headers"].get('Retry-After')
+        return SlackError('rate limited! Retry after %ss' % retry_after, retry_after=retry_after)
 
     # invite errors
     elif error_code == 'missing_scope':
-        raise SlackError('Slack token is for a non-admin user. Please contact an administrator.')
+        return SlackError('Slack token is for a non-admin user. Please contact an administrator.')
     elif error_code == 'already_invited':
         if 'email' in params:
             email_address = params['email']
             email_address_already_invited.send(sender=Slack, email_address=email_address)
-            raise SlackError('{} has already been invited.'.format(email_address))
+            return SlackError('{} has already been invited.'.format(email_address))
         else:
-            raise SlackError('That email address has already been invited.')
+            return SlackError('That email address has already been invited.')
     elif error_code == 'already_in_team':
         if 'email' in params:
             email_address = params['email']
             email_address_already_in_team.send(sender=Slack, email_address=email_address)
-            raise SlackError('{} is already in this team.'.format(email_address))
+            return SlackError('{} is already in this team.'.format(email_address))
         else:
-            raise SlackError('That email address is already in this team.')
+            return SlackError('That email address is already in this team.')
     elif error_code == 'paid_teams_only':
-        raise SlackError('{} {}'.format(
+        return SlackError('{} {}'.format(
             'Ultra-restricted invites are only available for paid accounts.',
             'Please contact an administrator.'))
 
     else:
-        raise SlackError('Unknown error: {}'.format(error_code))
+        return SlackError('Unknown error: {}'.format(error_code))
 
 
 class Slack(object):
@@ -72,11 +68,10 @@ class Slack(object):
         response = self._client.api_call(method, **params)
         log.info('Slack client received: %s', response)
 
-        try:
-            check_for_error(response, params)
-        except Exception as exc:
-            log.error("Slack API call failed", exc_info=exc)
-            raise
+        error = check_for_error(response, params)
+        if error:
+            log.error("Slack API call failed: %s", error)
+            raise error
 
         return response
 
