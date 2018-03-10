@@ -35,6 +35,18 @@ class SimpleTest(unittest.TestCase):
             response.content,
         )
 
+    def test_error(self):
+        with requests_mock.mock() as m:
+            m.post('//slack.com/api/team.info', json={'ok': False, 'error': 'some-error'})
+            m.post('//slack.com/api/users.list', json={'ok': False, 'error': 'some-error'})
+
+            response = self._call()
+
+        self.assertIn(
+            b'<strong>-1</strong> users online now of <strong>-1</strong> registered.',
+            response.content,
+        )
+
 
 RATE_LIMITED_RESPONSE = {
     'ok': False,
